@@ -41,7 +41,7 @@ def index():
     return apology("TODO")
 
 
-@app.route("/buy", methods=["GET", "POST"])
+@app.route("/todo", methods=["GET", "POST"])
 @login_required
 def buy():
     # TODO
@@ -99,32 +99,6 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
-
-
-@app.route("/quote", methods=["GET", "POST"])
-@login_required
-def quote():
-    """Get stock quote."""
-    
-    if request.method == "POST":
-        ti = request.form.get("ticker")
-        data = lookup(ti)
-        if not ti:
-            return apology("Must enter a ticker symbol", 403)
-            
-        elif not ti:
-            return apology("Must enter a valid ticker symbol", 403)
-        
-        elif not data:
-            return apology("Must enter a valid ticker symbol", 403)
-        
-        return render_template("success.html", type_success=f"Quoted {data['symbol']}", 
-                          message=f"One share of {data['symbol']} ({data['name']}) costs ${data['price']}", path="Go Back")
-    
-    else:
-        return render_template("quote.html")
-    
-    return apology("TODO")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -187,51 +161,6 @@ def register():
     
     else:
         return render_template("register.html")
-
-
-@app.route("/sell", methods=["GET", "POST"])
-@login_required
-def sell():
-    """Sell shares of stock"""
-    
-    if request.method == "POST":
-        try:
-            num_shares = int(request.form.get("shares"))
-            ticker_symbol = request.form.get("ticker").upper()
-            
-            if num_shares < 1 or not num_shares:
-                raise ValueError
-        
-        except ValueError:
-            return apology("You cannot sell zero or negative shares of stock.", 403)
-            
-        current_cash = db.execute("SELECT cash FROM users WHERE id = :user_id", user_id=session["user_id"])
-        current_shares = db.execute("SELECT * FROM stocks WHERE id = :user_id AND ticker = :ticker_symbol",
-                          user_id=session["user_id"], ticker_symbol=ticker_symbol)
-        
-        if not ticker_symbol:
-            return apology("You must specifiy a ticker symbol to sell", 403)
-        
-        elif not current_shares:
-            return apology("You cannot sell a stock you do not own", 403)
-            
-        elif current_shares[0]['shares'] < num_shares:
-            return apology("You cannot sell more shares than you own", 403)
-            
-        available_shares = current_shares[0]['shares']
-        new_shares = available_shares - num_shares
-        new_cash = current_cash[0]['cash'] + (num_shares * current_shares[0]['price'])
-        
-        db.execute("UPDATE users SET cash=:new_cash WHERE id = :user_id", new_cash=new_cash, user_id=session["user_id"])
-        db.execute("UPDATE stocks SET shares=:new_shares WHERE id=:user_id AND ticker=:symbol", new_shares=new_shares, user_id=session["user_id"], symbol=ticker_symbol)
-        db.execute("INSERT INTO history (id, ticker, shares, transfer) VALUES (:user_id, :ticker_symbol, :num_shares, :total_cost)", 
-                          user_id=session["user_id"], ticker_symbol=ticker_symbol, num_shares=(-1 * num_shares), total_cost=num_shares * current_shares[0]['price'])
-        
-        return render_template("success.html", type_success=f"Sold {num_shares} shares of {ticker_symbol}", 
-                          message=f"{num_shares} shares of {ticker_symbol} were sold for a total of {usd(num_shares * current_shares[0]['price'])}", path="Back To Main Page")
-            
-    else:
-        return render_template("sell.html")
 
 
 def errorhandler(e):
