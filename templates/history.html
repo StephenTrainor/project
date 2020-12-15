@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+    <h2>History for {{ username }}</h2>
+    <br>
+    <br>
+    <table>
+        <thead>
+            <th>Symbol</th>
+            <th>Shares</th>
+            <th>Total Value Transferred</th>
+            <th>Timestamp</th>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row['ticker'] }}</td>
+                    <td>{{ row['shares'] }}</td>
+                    <td>{{ row['transfer'] | usd}}</td>
+                    <td>{{ row['timestamp'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

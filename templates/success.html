@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Success
+{% endblock %}
+
+{% block main %}
+    <h1>Successfully {{ type_success }}!</h1>
+    <p>{{ message }}</p>
+    <form onsubmit"/">
+        <div>
+            <button type="submit" class="btn btn-secondary" style="margin-top: 25px;">{{ path }}</button>
+        </div>
+    </form>
+{% endblock %}

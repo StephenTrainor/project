@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+    <h1>Register An Account</h1>
+    <pre style="text-align: left; margin-left: 160px;">
+        Make sure to remember your login information or save it in a password manager.
+        
+                            Passwords must be secure:
+                                8 or more letters/characters
+                                2 or more numbers
+                                1 or more symbols
+
+                        *DO NOT USE PASSWORDS FROM OTHER SITES*
+    </pre>
+    <form action="/register" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirm-password" placeholder="Confirm Password" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+
+{% endblock %}
