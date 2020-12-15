@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block main %}
+    <h1>Login Here</h1>
+    <pre style="text-align: left; margin-left: 160px;">
+                      Login with the username and password that you created
+                      If you do not have an accout, you can register 
+                      in the top right corner by clicking register.
+    </pre>
     <form action="/login" method="post">
         <div class="form-group">
             <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
