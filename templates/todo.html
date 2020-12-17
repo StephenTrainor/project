@@ -23,13 +23,28 @@
         <tbody>
             {% for row in rows %}
                 <tr>
-                    <td>{{ row['todo'] }}</td>
+                    <td>{{ loop.index }}. {{ row['todo'] }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    
+    <br>
+    
     <form action="/delete" method="post">
-        <button name="clear_todo" type="submit" class="btn btn-outline-danger">Clear To-Do List</button>
+        <div class="form-group">
+            <input class="input-large search-query" type="text" name="list_item" placeholder="List Item" autocomplete="off">
+        </div>
+        
+        <button name="clear_item_todo" type="submit" class="btn btn-outline-danger">Clear Item</button>
+    </form>
+    
+    <br>
+    <h3>Or</h3>
+    <br>
+    
+    <form action="/delete" method="post">
+        <button name="clear_todo" type="submit" class="btn btn-outline-danger">Clear Entire List</button>
     </form>
     {% endif %}
 {% endblock %}

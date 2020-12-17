@@ -57,7 +57,8 @@ def buy():
                    typee="Added Item On ToDo", message=request.form.get("message"))
 
         return render_template("success.html", type_success="added item on to-do list",
-                               message="The specified to-do item was successfully added on the to-do list and can be seen now.", path="Go Back")
+                               message="The specified to-do item was successfully added on the to-do list and can be seen now.", 
+                               path="Go Back")
 
     else:
         if not todo_data:
@@ -75,13 +76,27 @@ def delete():
         
         return render_template("success.html", type_success="cleared to-do list", 
                                message="Your to-do list was cleared and you can proceed to add more items to the list.", path="Go Back")
+    
+    elif "clear_item_todo" in request.form:
+        todo_data = db.execute("SELECT * FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
+        
+        for m in range(len(todo_data)):
+            if todo_data[m]['todo'].lower() == request.form.get("list_item").lower():
+                db.execute("DELETE FROM 'todo' WHERE (id = :user_id AND todo = :user_message)", user_id=session["user_id"], 
+                           user_message=todo_data[m]['todo'])
+                db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
+                           typee="Deleted To-Do Item", message=todo_data[m]['todo'])
+                break
+        
+        return render_template("success.html", type_success="cleared item", 
+                               message="An Item was succesfully removed from your To-Do list.", path="Go Back")
                               
     elif "clear_history" in request.form:
         db.execute("DELETE FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
         
         return render_template("success.html", type_success="cleared history", 
                                message="All previous history is now gone.", path="Go Back")
-
+    
 
 @app.route("/history", methods=["GET", "POST"])
 @login_required
@@ -170,8 +185,7 @@ def register():
                 return apology("Password cannot have spaces in them.", 403)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
+        rows = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))
 
         if len(rows) > 0:
             return apology("Username already taken", 403)
