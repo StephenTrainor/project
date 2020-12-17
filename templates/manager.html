@@ -1,24 +1,24 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    To-Do
+    Manager
 {% endblock %}
 
 {% block main %}
-    <form action="/todo" method="post">
-        <h2>To-Do List for {{ username }}</h2>
+    <form action="/manager" method="post">
+        <h2>Password Manager for {{ username }}</h2>
         <div class="form-group">
-            <input class="input-large search-query" type="text" name="message" placeholder="Name of Service/Website" autocomplete="off">
+            <input size="35%" class="input-large search-query" type="text" name="service" placeholder="Name of Service/Website" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <input class="input-large search-query" type="text" name="message" placeholder="Username" autocomplete="off">
+            <input size="35%" class="input-large search-query" type="text" name="username" placeholder="Username" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <input class="input-large search-query" type="password" name="message" placeholder="Password" autocomplete="off">
+            <input size="35%" class="input-large search-query" type="password" name="password" placeholder="Password" autocomplete="off">
         </div>
-        <button type="submit" class="btn btn-outline-info">Add To List</button>
+        <button type="submit" class="btn btn-outline-info">Add To Manager</button>
     </form>
 
     {% if exists %}
@@ -26,18 +26,27 @@
 
     <table>
         <thead>
-            <th>What To-Do</th>
+            <th>Service/Website</th>
+            <th>Username</th>
+            <th>Password</th>
         </thead>
         <tbody>
             {% for row in rows %}
                 <tr>
-                    <td>{{ row['todo'] }}</td>
+                    <td>{{ row['service'] }}</td>
+                    <td>{{ row['username'] }}</td>
+                    <td class="password">{{ row['password'] }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
     <form action="/delete" method="post">
-        <button name="clear_todo" type="submit" class="btn btn-outline-danger">Clear To-Do List</button>
+        <div class="form-group">
+            <input class="input-large search-query" type="text" name="list_item" placeholder="Service/Site Name" autocomplete="off">
+        </div>
+
+        <button name="clear_item_manager" type="submit" class="btn btn-outline-danger">Clear Password</button>
     </form>
     {% endif %}
 {% endblock %}

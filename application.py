@@ -41,9 +41,55 @@ def index():
     return apology("TODO")
 
 
+@app.route("/delete", methods=["GET", "POST"])
+@login_required
+def delete():
+    if "clear_todo" in request.form:
+        db.execute("DELETE FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                   user_id=session["user_id"],
+                   typee="Deleted History", message="")
+
+        return render_template("success.html", type_success="cleared to-do list",
+                               message="Your to-do list was cleared and you can proceed to add more items to the list.",
+                               path="Go Back")
+
+    elif "clear_item_todo" in request.form:
+        todo_data = db.execute("SELECT * FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
+
+        for m in range(len(todo_data)):
+            if todo_data[m]['todo'].lower() == request.form.get("list_item").lower():
+                db.execute("DELETE FROM 'todo' WHERE (id = :user_id AND todo = :user_message)",
+                           user_id=session["user_id"],
+                           user_message=todo_data[m]['todo'])
+                db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                           user_id=session["user_id"],
+                           typee="Deleted To-Do Item", message=todo_data[m]['todo'])
+                break
+
+        return render_template("success.html", type_success="cleared item",
+                               message="An Item was successfully removed from your To-Do list.", path="Go Back")
+
+    elif "clear_history" in request.form:
+        db.execute("DELETE FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
+
+        return render_template("success.html", type_success="cleared history",
+                               message="All previous history is now gone.", path="Go Back")
+
+
+@app.route("/history", methods=["GET", "POST"])
+@login_required
+def history():
+    history = db.execute("SELECT * FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
+
+    if not history:
+        return render_template("history.html")
+    return render_template("history.html", rows=history, exists=True)
+
+
 @app.route("/todo", methods=["GET", "POST"])
 @login_required
-def buy():
+def todo():
     user_data = db.execute("SELECT * FROM 'users' WHERE (id = :user_id)", user_id=session["user_id"])
     todo_data = db.execute("SELECT * FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
 
@@ -54,7 +100,7 @@ def buy():
         db.execute("INSERT INTO 'todo' (id, todo) VALUES (:user_id, :message)", 
                    user_id=session["user_id"], message=request.form.get("message"))
         db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
-                   typee="Added Item On ToDo", message=request.form.get("message"))
+                   typee="Added Item On ToDo List", message=request.form.get("message"))
 
         return render_template("success.html", type_success="added item on to-do list",
                                message="The specified to-do item was successfully added on the to-do list and can be seen now.", 
@@ -66,47 +112,37 @@ def buy():
         return render_template("todo.html", username=user_data[0]['username'], rows=todo_data, exists=True)
 
 
-@app.route("/delete", methods=["GET", "POST"])
+@app.route("/manager", methods=["GET", "POST"])
 @login_required
-def delete():
-    if "clear_todo" in request.form:
-        db.execute("DELETE FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
-        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
-                   typee="Deleted History", message="")
-        
-        return render_template("success.html", type_success="cleared to-do list", 
-                               message="Your to-do list was cleared and you can proceed to add more items to the list.", path="Go Back")
-    
-    elif "clear_item_todo" in request.form:
-        todo_data = db.execute("SELECT * FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
-        
-        for m in range(len(todo_data)):
-            if todo_data[m]['todo'].lower() == request.form.get("list_item").lower():
-                db.execute("DELETE FROM 'todo' WHERE (id = :user_id AND todo = :user_message)", user_id=session["user_id"], 
-                           user_message=todo_data[m]['todo'])
-                db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
-                           typee="Deleted To-Do Item", message=todo_data[m]['todo'])
-                break
-        
-        return render_template("success.html", type_success="cleared item", 
-                               message="An Item was succesfully removed from your To-Do list.", path="Go Back")
-                              
-    elif "clear_history" in request.form:
-        db.execute("DELETE FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
-        
-        return render_template("success.html", type_success="cleared history", 
-                               message="All previous history is now gone.", path="Go Back")
-    
+def manager():
+    user_data = db.execute("SELECT * FROM 'users' WHERE (id = :user_id)", user_id=session["user_id"])
+    content = db.execute("SELECT * FROM 'manager' WHERE (id = :user_id)", user_id=session["user_id"])
 
-@app.route("/history", methods=["GET", "POST"])
-@login_required
-def history():
-    history = db.execute("SELECT * FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
-    
-    if not history:
-        return render_template("history.html")
-    return render_template("history.html", rows=history, exists=True)
-    
+    if request.method == "POST":
+        if not request.form.get("service"):
+            return apology("Must specify service or site", 403)
+
+        elif not request.form.get("username"):
+            return apology("Must specify a username", 403)
+
+        elif not request.form.get("password"):
+            return apology("Must specify a password", 403)
+
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
+                   typee="Additional Item for Password Manager", message="")
+        db.execute("INSERT INTO 'manager' (id, service, username, password) VALUES (:user_id, :site, :username, :password)",
+                   user_id=session["user_id"], site=request.form.get("service"), username=request.form.get("username"),
+                   password=request.form.get("password"))
+
+        return render_template("success.html", type_success="added password",
+                               message=f"Password for {request.form.get('service')} was successfully added to the Password Manager",
+                               path="Go Back")
+
+    else:
+        if not content:
+            return render_template("manager.html", username=user_data[0]['username'], rows=content)
+        return render_template("manager.html", username=user_data[0]['username'], rows=content, exists=True)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

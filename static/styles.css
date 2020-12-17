@@ -56,3 +56,11 @@ th, td {
     text-align: left;
     border-top: 1px solid #ddd;
 }
+
+.password {
+    color: #ffffff;
+}
+
+.password:hover {
+    color: #212529;
+}
