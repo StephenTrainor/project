@@ -1,3 +1,6 @@
+let password = []
+
 function generate() {
-    console.log("JeahJeah");
+    console.log("This works, I think");
 }
+
