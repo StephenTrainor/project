@@ -5,25 +5,39 @@
 {% endblock %}
 
 {% block main %}
+    {% if exists %}
     <h2>History for {{ username }}</h2>
     <br>
     <br>
     <table>
         <thead>
-            <th>Symbol</th>
-            <th>Shares</th>
-            <th>Total Value Transferred</th>
+            <th>Type</th>
+            <th>Message</th>
             <th>Timestamp</th>
         </thead>
         <tbody>
             {% for row in rows %}
                 <tr>
-                    <td>{{ row['ticker'] }}</td>
-                    <td>{{ row['shares'] }}</td>
-                    <td>{{ row['transfer'] | usd}}</td>
+                    <td>{{ row['type'] }}</td>
+                    <td>{{ row['message'] }}</td>
                     <td>{{ row['timestamp'] }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    
+    <form action="/delete" method="post">
+        <button name="clear_history" type="submit" class="btn btn-outline-danger">Clear All History</button>
+    </form>
+    
+    {% else %}
+    <h2>No History Exists</h2>
+    
+    <form action="/">
+        <div>
+            <button type="submit" class="btn btn-secondary" style="margin-top: 25px;">Go Back</button>
+        </div>
+    </form>
+    
+    {% endif %}
 {% endblock %}
