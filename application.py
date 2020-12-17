@@ -110,6 +110,12 @@ def todo():
         return render_template("todo.html", username=user_data[0]['username'], rows=todo_data, exists=True)
 
 
+@app.route("/gen", methods=["GET", "POST"])
+@login_required
+def generator():
+    return render_template("generator.html")
+
+
 @app.route("/manager", methods=["GET", "POST"])
 @login_required
 def manager():

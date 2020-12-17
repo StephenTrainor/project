@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Generator
+{% endblock %}
+
+{% block main %}
+    <h1>Password Generator</h1>
+    <pre style="text-align: left; margin-left: 160px;">
+        This page will allow you to generate a password with the following features:
+
+                                1. Uppercase and Lowercase Letters
+                                2. Digits That Range 0-9
+                                3. Random Amount of Specified Symbols
+                                4. Specified Length
+                                5.
+    </pre>
+
+    <form class="form-group" onclick="generate()" method="post">
+        <div class="form-group">
+            <input type="number" name="length" style="width: 7%;" placeholder="Length">
+            <input class="input-large search-query" type="text" name="symbols" placeholder="Included Symbols">
+        </div>
+
+        <button type="submit" class="btn btn-outline-info">Generate Password</button>
+    </form>
+
+
+
+    <footer class="medium text-center text-muted">
+        <hr>
+        A more customizable and advanced password generator can be found <a href="https://github.com/StephenTrainor/PasswordGen">here.</a>
+    </footer>
+{% endblock %}
