@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Password
+{% endblock %}
+
+{% block main %}
+    <h1>Successfully {{ type_success }}!</h1>
+
+    <div style="word-wrap: break-word;">
+        <h4 style="font-weight: normal;">Generated Password:</h4>
+        {{ password }}
+        <br>
+        <h5 style="font-weight: normal;">This password will disappear after you exit and will not be saved.</h5>
+    </div>
+
+    <form action="/">
+        <div>
+            <button type="submit" class="btn btn-secondary" style="margin-top: 25px;">{{ path }}</button>
+        </div>
+    </form>
+{% endblock %}

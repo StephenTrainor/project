@@ -1,16 +1,14 @@
-import os
+import random
 from cs50 import SQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required
 
-
 # Configure application
 app = Flask(__name__)
-
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -23,7 +21,7 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
-    
+
 
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
@@ -95,13 +93,14 @@ def todo():
         if not request.form.get("message"):
             return apology("Must enter something to do in the input field")
 
-        db.execute("INSERT INTO 'todo' (id, todo) VALUES (:user_id, :message)", 
+        db.execute("INSERT INTO 'todo' (id, todo) VALUES (:user_id, :message)",
                    user_id=session["user_id"], message=request.form.get("message"))
-        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                   user_id=session["user_id"],
                    typee="Added Item On ToDo List", message=request.form.get("message"))
 
         return render_template("success.html", type_success="added item on to-do list",
-                               message="The specified to-do item was successfully added on the to-do list and can be seen now.", 
+                               message="The specified to-do item was successfully added on the to-do list and can be seen now.",
                                path="Go Back")
 
     else:
@@ -113,7 +112,43 @@ def todo():
 @app.route("/gen", methods=["GET", "POST"])
 @login_required
 def generator():
-    return render_template("generator.html")
+    if request.method == "POST":
+        chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+                 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+                 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7',
+                 '8', '9']
+        dupes = []
+        password = []
+
+        if not request.form.get("length"):
+            return apology("Must specify length of password", 403)
+
+        for s in request.form.get("symbols"):
+            chars.append(s)
+
+        for li in range(len(chars)):
+            if chars[li] not in dupes:
+                dupes.append(chars[li])
+
+            elif chars[li] in dupes:
+                chars[li] = ""
+
+        for c in range(int(request.form.get("length"))):
+            password.append(chars[random.randint(0, len(chars) - 1)])
+
+        new_pass = "".join(password)
+
+        return render_template("pass.html", type_success="generated password", path="Exit",
+                               password=new_pass)
+
+    else:
+        return render_template("generator.html")
+
+
+@app.route("/checker", methods=["GET", "POST"])
+@login_required
+def checker():
+    return render_template("checker.html")
 
 
 @app.route("/manager", methods=["GET", "POST"])
@@ -132,11 +167,13 @@ def manager():
         elif not request.form.get("password"):
             return apology("Must specify a password", 403)
 
-        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)", user_id=session["user_id"],
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                   user_id=session["user_id"],
                    typee="Additional Item for Password Manager", message="")
-        db.execute("INSERT INTO 'manager' (id, service, username, password) VALUES (:user_id, :site, :username, :password)",
-                   user_id=session["user_id"], site=request.form.get("service"), username=request.form.get("username"),
-                   password=request.form.get("password"))
+        db.execute(
+            "INSERT INTO 'manager' (id, service, username, password) VALUES (:user_id, :site, :username, :password)",
+            user_id=session["user_id"], site=request.form.get("service"), username=request.form.get("username"),
+            password=request.form.get("password"))
 
         return render_template("success.html", type_success="added password",
                                message=f"Password for {request.form.get('service')} was successfully added to the Password Manager",
@@ -183,7 +220,6 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     session.clear()
 
     lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -230,7 +266,9 @@ def register():
         db.execute("INSERT INTO users (username, hash) VALUES (:user, :hash_value)",
                    user=request.form.get("username"), hash_value=generate_password_hash(user_password))
 
-        return render_template("success.html", type_success="registered", message="You can now login to the website with your newly created account!", path="Go Back")
+        return render_template("success.html", type_success="registered",
+                               message="You can now login to the website with your newly created account!",
+                               path="Go Back")
 
     else:
         return render_template("register.html")

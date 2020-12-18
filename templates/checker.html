@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Checker
+{% endblock %}
+
+{% block main %}
+    <h1>Password Checker</h1>
+    <pre style="text-align: left; margin-left: 160px;">
+                        This page will allow you to check a password
+
+                            This will:
+                                1. Check your password strength
+                                2. Return some feedback about strength
+                                3. Allow you to enter as many passwords as you wish
+
+                            This will NOT:
+                                1. Have autocomplete on
+                                2. Log any entered passwords
+                                3. Record any activity in history
+    </pre>
+
+    <form class="form-group" oninput="check()">
+        <div class="form-group">
+            <input size="45%" class="input-large search-query" type="password"
+                   id="super_duper_secret_password" autocomplete="off" placeholder="Password"
+            >
+        </div>
+    </form>
+
+    <div class="alert alert-success" role="alert" id="strength">
+        <h4 class="alert-heading" id="status"></h4>
+        <p id="details"></p>
+        <hr>
+        <p class="mb-0" id="suggestion"></p>
+    </div>
+{% endblock %}

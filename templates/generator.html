@@ -14,19 +14,17 @@
                                 3. Random Amount of Specified Symbols
                                 4. Specified Length
 
-
+        If you want to check the strength of your password, go the <a href="/checker">password checker</a>.
     </pre>
 
-    <form class="form-group" onclick="generate()" method="post">
+    <form class="form-group" action="/gen" method="post">
         <div class="form-group">
             <input type="number" name="length" style="width: 7%;" placeholder="Length">
-            <input class="input-large search-query" type="text" name="symbols" placeholder="Included Symbols">
+            <input class="input-large search-query" type="text" name="symbols" autocomplete="off" placeholder="Included Symbols">
         </div>
 
         <button type="submit" class="btn btn-outline-info">Generate Password</button>
     </form>
-
-
 
     <footer class="medium text-center text-muted">
         <hr>
