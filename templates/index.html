@@ -5,5 +5,72 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Hello, {{ username }}</h1>
+    <h1>Welcome, {{ username }}</h1>
+    <h5>It is {{ day }}</h5>
+
+    <hr>
+
+    <div class="row">
+        <div class="card" style="width: 16.5rem;">
+            <img src="static/img/history_clock.png" class="card-img-top" alt="clock rewinding" style="max-width: 250px; max-height: 250px;">
+            <div class="card-body">
+                <h5 class="card-title">History</h5>
+                <p class="card-text">
+                    View your activity on this site, history is made up mostly of timestamps.
+                    You are free to clear your history whenever you want.
+                </p>
+                <a href="/history" class="btn btn-primary">Go to History</a>
+            </div>
+        </div>
+
+        <div class="card" style="width: 16.5rem;">
+            <img src="static/img/todo_list.png" class="card-img-top" alt="a todo list" style="max-width: 240px; max-height: 300px;">
+            <div class="card-body">
+                <h5 class="card-title">To-Do List</h5>
+                <p class="card-text">
+                    Create a ToDo list where you can remove individual tasks or clear entire list one click.
+                </p>
+                <a href="/history" class="btn btn-primary">Go To The To-Do List</a>
+                </div>
+        </div>
+
+        <div class="card" style="width: 17rem;">
+            <img src="static/img/generator.png" class="card-img-top" alt="a todo list" style="max-width: 250px; max-height: 250px;">
+            <div class="card-body">
+                <h5 class="card-title">Password Generator</h5>
+                <p class="card-text">
+                    Generate passwords with any symbols or any length specified.
+                    Note: passwords will not be saved or automatically added to the password manager.
+                </p>
+                <a href="/history" class="btn btn-primary">Go To Password Gen</a>
+            </div>
+        </div>
+
+        <div class="card" style="width: 17rem;">
+            <br>
+            <br>
+            <img src="static/img/checker.jpg" class="card-img-top" alt="a todo list" style="max-width: 250px; max-height: 250px;">
+            <div class="card-body">
+                <br>
+                <br>
+                <br>
+                <br>
+                <h5 class="card-title">Password Checker</h5>
+                <p class="card-text">
+                    Enter a password to receive feedback on it's strength
+                    Nothing is saved for your privacy
+                </p>
+                <a href="/history" class="btn btn-primary">Go To Password Checker</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+    </div>
+
+    <footer class="medium text-center text-muted">
+        <hr>
+        Current Time: {{ hour }}:{{ '%02d' % minute }} {{ amp }}
+    </footer>
 {% endblock %}

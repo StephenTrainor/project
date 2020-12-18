@@ -1,11 +1,14 @@
 import random
 from cs50 import SQL
-from flask import Flask, redirect, render_template, request, session
-from flask_session import Session
 from tempfile import mkdtemp
-from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-from werkzeug.security import check_password_hash, generate_password_hash
+from calendar import weekday
+from datetime import datetime
+from flask_session import Session
 from helpers import apology, login_required
+from flask import Flask, redirect, render_template, request, session
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
+
 
 # Configure application
 app = Flask(__name__)
@@ -34,7 +37,19 @@ db = SQL("sqlite:///data.db")
 @app.route("/")
 @login_required
 def index():
-    return apology("TODO")
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    user_data = db.execute("SELECT * FROM 'users' WHERE (id = :user_id)", user_id=session["user_id"])
+    timestamp = datetime.now()
+    y, m, d, h, mi = timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute
+    amp = 'AM'
+    current_day = weekday(y, m, d)
+
+    if h > 12:
+        h -= 12
+        amp = 'PM'
+
+    return render_template("index.html", username=user_data[0]['username'], day=days[current_day], hour=h,
+                           minute=mi, amp=amp)
 
 
 @app.route("/delete", methods=["GET", "POST"])
@@ -59,12 +74,25 @@ def delete():
                            user_id=session["user_id"],
                            user_message=todo_data[m]['todo'])
                 db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
-                           user_id=session["user_id"],
-                           typee="Deleted To-Do Item", message=todo_data[m]['todo'])
-                break
+                           user_id=session["user_id"], typee="Deleted To-Do Item", message=todo_data[m]['todo'])
+                return render_template("success.html", type_success="cleared item",
+                                       message="An Item was successfully removed from your To-Do list.", path="Go Back")
 
-        return render_template("success.html", type_success="cleared item",
-                               message="An Item was successfully removed from your To-Do list.", path="Go Back")
+        return apology("Unable to delete specified item from to-do list, try again.", 403)
+
+    elif "clear_item_manager" in request.form:
+        user_data = db.execute("SELECT * FROM 'manager' WHERE (id = :user_id)", user_id=session["user_id"])
+
+        for m in range(len(user_data)):
+            if user_data[m]['service'].lower() == request.form.get("list_item").lower():
+                db.execute("DELETE FROM 'manager' WHERE (id = :user_id AND service = :site)",
+                           user_id=session["user_id"], site=user_data[m]['service'])
+                db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                           user_id=session["user_id"], typee="Deleted Password", message="")
+                return render_template("success.html", type_success="cleared item",
+                                       message="An Item was successfully removed from your To-Do list.", path="Go Back")
+
+        return apology("Unable to delete specified service/site, try again.", 403)
 
     elif "clear_history" in request.form:
         db.execute("DELETE FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
@@ -137,6 +165,8 @@ def generator():
             password.append(chars[random.randint(0, len(chars) - 1)])
 
         new_pass = "".join(password)
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                   user_id=session["user_id"], typee="Generated Password", message="")
 
         return render_template("pass.html", type_success="generated password", path="Exit",
                                password=new_pass)

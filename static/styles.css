@@ -68,3 +68,9 @@ th, td {
 label {
     margin-right: 2%;
 }
+
+img {
+    border-radius: 6px;
+    height: auto;
+    width: auto;
+}
