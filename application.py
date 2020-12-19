@@ -1,9 +1,11 @@
 import random
+import pandas as pd
 from cs50 import SQL
 from tempfile import mkdtemp
 from calendar import weekday
 from datetime import datetime
 from flask_session import Session
+import pandas_datareader.data as web
 from helpers import apology, login_required
 from flask import Flask, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -135,6 +137,31 @@ def todo():
         if not todo_data:
             return render_template("todo.html", username=user_data[0]['username'], rows=todo_data)
         return render_template("todo.html", username=user_data[0]['username'], rows=todo_data, exists=True)
+
+
+@app.route("/stock", methods=["GET", "POST"])
+@login_required
+def stock():
+    now = datetime.now()
+
+    if request.method == "POST":
+        symbol = request.form.get("ticker").upper()
+        months = request.form.get("months")
+
+        if not symbol:
+            return apology("Must provide a ticker symbol", 403)
+
+        elif not months:
+            return apology("Must provide the number of months worth of data to collect", 403)
+
+        start = datetime(now.year, now.month - int(months), now.day)
+        end = datetime(now.year, now.month, now.day)
+
+        data = web.DataReader(symbol, 'yahoo', start, end)
+        data.to_csv('stock.csv')
+
+    else:
+        return render_template("stock.html")
 
 
 @app.route("/gen", methods=["GET", "POST"])
