@@ -63,9 +63,7 @@ def delete():
                    user_id=session["user_id"],
                    typee="Deleted History", message="")
 
-        return render_template("success.html", type_success="cleared to-do list",
-                               message="Your to-do list was cleared and you can proceed to add more items to the list.",
-                               path="Go Back")
+        return redirect("/")
 
     elif "clear_item_todo" in request.form:
         todo_data = db.execute("SELECT * FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
@@ -77,8 +75,8 @@ def delete():
                            user_message=todo_data[m]['todo'])
                 db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
                            user_id=session["user_id"], typee="Deleted To-Do Item", message=todo_data[m]['todo'])
-                return render_template("success.html", type_success="cleared item",
-                                       message="An Item was successfully removed from your To-Do list.", path="Go Back")
+
+                return redirect("/todo")
 
         return apology("Unable to delete specified item from to-do list, try again.", 403)
 
@@ -91,16 +89,15 @@ def delete():
                            user_id=session["user_id"], site=user_data[m]['service'])
                 db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
                            user_id=session["user_id"], typee="Deleted Password", message="")
-                return render_template("success.html", type_success="cleared item",
-                                       message="An Item was successfully removed from your To-Do list.", path="Go Back")
+
+                return redirect("/manager")
 
         return apology("Unable to delete specified service/site, try again.", 403)
 
     elif "clear_history" in request.form:
         db.execute("DELETE FROM 'history' WHERE (id = :user_id)", user_id=session["user_id"])
 
-        return render_template("success.html", type_success="cleared history",
-                               message="All previous history is now gone.", path="Go Back")
+        return redirect("/")
 
 
 @app.route("/history", methods=["GET", "POST"])
@@ -129,9 +126,7 @@ def todo():
                    user_id=session["user_id"],
                    typee="Added Item On ToDo List", message=request.form.get("message"))
 
-        return render_template("success.html", type_success="added item on to-do list",
-                               message="The specified to-do item was successfully added on the to-do list and can be seen now.",
-                               path="Go Back")
+        return redirect("/todo")
 
     else:
         if not todo_data:
@@ -249,10 +244,7 @@ def candle():
 
     figure.show()
 
-    return render_template("success.html",
-                           type_success="loaded graph",
-                           message="The graph was successfully loaded in another tab.",
-                           path="Back")
+    return redirect("/stock")
 
 
 @app.route("/gen", methods=["GET", "POST"])
@@ -323,9 +315,7 @@ def manager():
             user_id=session["user_id"], site=request.form.get("service"), username=request.form.get("username"),
             password=request.form.get("password"))
 
-        return render_template("success.html", type_success="added password",
-                               message=f"Password for {request.form.get('service')} was successfully added to the Password Manager",
-                               path="Go Back")
+        return redirect("/manager")
 
     else:
         if not content:
@@ -414,9 +404,7 @@ def register():
         db.execute("INSERT INTO users (username, hash) VALUES (:user, :hash_value)",
                    user=request.form.get("username"), hash_value=generate_password_hash(user_password))
 
-        return render_template("success.html", type_success="registered",
-                               message="You can now login to the website with your newly created account!",
-                               path="Go Back")
+        return redirect("/login")
 
     else:
         return render_template("register.html")
