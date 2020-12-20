@@ -1,20 +1,23 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Checker
+    Stocks
 {% endblock %}
 
 {% block main %}
-    <h1>Password Checker</h1>
+    <h1>Stock Analyzer</h1>
     <pre style="text-align: left; margin-left: 160px;">
 
     </pre>
 
-    <form class="form-group" action="/stock">
+    <form class="form-group" action="/stock" method="post">
         <div class="form-group">
             <input class="input-large search-query" type="text" autocomplete="off" name="ticker" placeholder="Stock Ticker">
 
-            <input class="input-medium search-query" type="number" autocomplete="off" name="months" placeholder="Months">
+            <input class="input-medium search-query" type="number" autocomplete="off" name="months" placeholder="Months of Data">
+        </div>
+        <div>
+            <button class="btn btn-outline-info" type="submit">Analyze Stock</button>
         </div>
     </form>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Summary
+{% endblock %}
+
+{% block main %}
+    <h1>Summary for {{ ticker_symbol }}</h1>
+
+    <form class="form-group" action="/candle" method="post">
+        <div>
+            <button class="btn btn-outline-info" type="submit">Generate Graph</button>
+        </div>
+    </form>
+{% endblock %}
