@@ -9,7 +9,49 @@
 
     <form class="form-group" action="/candle" method="post">
         <div>
-            <button class="btn btn-outline-info" type="submit">Generate Graph</button>
+            <button class="btn btn-info" type="submit">Generate Graph</button>
+        </div>
+    </form>
+    <div class="card-group">
+        <div id="month_prices" class="card"><div class="card text-white bg-info mb-3" style="max-width: 50rem;">
+            <div class="card-header">Price Averages with percent change for most recent trading and monthly average</div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            {% for key, value in monthly.items() %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                        <tr>
+                            {% for key, value in monthly.items() %}
+                                {% if key == 'Volume' %}
+                                    <td class="card-text">{{ value|round|int }} shares</td>
+                                {% else %}
+                                    <td class="card-text">{{ "$%.2f"|format(value|float) }}</td>
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+
+                            <tr>
+                            {% for key, value in month_percent.items() %}
+                                {% if key == 'Close' %}
+                                    <td id="month_percent_close" class="card-text">{{ value }}%</td>
+                                {% else %}
+                                    <td class="card-text">{{ value }}%</td>
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form class="form-group" action="/stock" method="get">
+        <div>
+            <button class="btn btn-outline-info" type="submit">Go Back</button>
         </div>
     </form>
 {% endblock %}

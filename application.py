@@ -210,7 +210,18 @@ def stock():
             weekly[cols[m]] /= 5
             monthly[cols[m]] /= 20
 
-        return render_template("summary.html", ticker_symbol=symbol)
+            week_percent[cols[m]] = percent(weekly[cols[m]], data[cols[m]][len(data) - 1])
+            month_percent[cols[m]] = percent(monthly[cols[m]], data[cols[m]][len(data) - 1])
+
+        return render_template("summary.html",
+                               ticker_symbol=symbol,
+                               month_percent=month_percent,
+                               week_percent=week_percent,
+                               prev_percent=prev_percent,
+                               monthly=monthly,
+                               weekly=weekly,
+                               prev=prev,
+                               all_time=all_time)
 
     else:
         return render_template("stock.html")
