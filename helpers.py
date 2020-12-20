@@ -29,3 +29,7 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
+
+def percent(o, n):
+    return round((((n - o) / o) * 100), 2)

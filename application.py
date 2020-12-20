@@ -5,12 +5,12 @@ from tempfile import mkdtemp
 from calendar import weekday
 from datetime import datetime
 from flask_session import Session
+import plotly.graph_objects as go
 import pandas_datareader.data as web
-from helpers import apology, login_required
+from helpers import apology, login_required, percent
 from flask import Flask, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-
 
 # Configure application
 app = Flask(__name__)
@@ -54,7 +54,7 @@ def index():
                            minute=mi, amp=amp)
 
 
-@app.route("/delete", methods=["GET", "POST"])
+@app.route("/delete", methods=["POST"])
 @login_required
 def delete():
     if "clear_todo" in request.form:
@@ -145,6 +145,7 @@ def stock():
     now = datetime.now()
 
     if request.method == "POST":
+        global symbol
         symbol = request.form.get("ticker").upper()
         months = request.form.get("months")
 
@@ -154,14 +155,104 @@ def stock():
         elif not months:
             return apology("Must provide the number of months worth of data to collect", 403)
 
-        start = datetime(now.year, now.month - int(months), now.day)
+        month = now.month - int(months)
+        year = now.year
+
+        while not month >= 1:
+            month += 12
+            year -= 1
+
+        start = datetime(year, month, now.day)
         end = datetime(now.year, now.month, now.day)
 
-        data = web.DataReader(symbol, 'yahoo', start, end)
-        data.to_csv('stock.csv')
+        try:
+            data = web.DataReader(symbol, 'yahoo', start, end)
+            data.to_csv('stock.csv')
+            data = pd.read_csv('stock.csv')
+
+        except (IOError, KeyError):
+            return apology("Invalid Ticker Symbol, try again", 403)
+
+        cols = ['High', 'Low', 'Open', 'Close', 'Volume', 'Adj Close']
+        month_percent = {}
+        week_percent = {}
+        prev_percent = {}
+        all_time = {}
+        monthly = {}
+        weekly = {}
+        prev = {}
+        current = data.tail(1)
+        date_data = current['Date']
+
+        for i in range(len(data)):
+            for j in range(len(cols)):
+                if i == 0:
+                    all_time[cols[j]] = data[cols[j]][i]
+
+                else:
+                    all_time[cols[j]] += data[cols[j]][i]
+
+        for m in range(len(cols)):
+            all_time[cols[m]] /= len(data)
+
+            prev_percent[cols[m]] = percent(data[cols[m]][len(data) - 2], data[cols[m]][len(data) - 1])
+            prev[cols[m]] = data[cols[m]][len(data) - 1] - data[cols[m]][len(data) - 2]
+
+            for n in range(len(data) - 4, len(data)):
+                if n == len(data) - 4:
+                    weekly[cols[m]] = data[cols[m]][n]
+
+                else:
+                    weekly[cols[m]] += data[cols[m]][n]
+
+            for o in range(len(data) - 19, len(data)):
+                if o == len(data) - 19:
+                    monthly[cols[m]] = data[cols[m]][o]
+
+                else:
+                    monthly[cols[m]] += data[cols[m]][o]
+
+            weekly[cols[m]] /= 5
+            monthly[cols[m]] /= 20
+
+        return render_template("summary.html", ticker_symbol=symbol)
 
     else:
         return render_template("stock.html")
+
+
+@app.route("/candle", methods=["POST"])
+@login_required
+def candle():
+    """
+    The dataframe and candlestick figure code was from a tutorial
+
+    https://www.youtube.com/watch?v=4fhBXFSS1lc
+
+    Rest of the code was modified, removed, or added to.
+    """
+    df = pd.read_csv('stock.csv')
+
+    df = df.set_index(pd.DatetimeIndex(df['Date'].values))
+    figure = go.Figure(data=[
+        go.Candlestick(
+            x=df['Date'],
+            open=df['Open'],
+            high=df['High'],
+            low=df['Low'],
+            hovertext=df['Volume'],
+            close=df['Close'])
+    ])
+    figure.update_layout(title=f'{symbol} stock analysis',
+                         yaxis_title=f'{symbol} stock price (USD)',
+                         xaxis_title=f'Volume of {symbol} with dates corresponding with dates above')
+
+    figure.show()
+
+    return render_template("success.html",
+                           type_success="loaded graph",
+                           message="The graph was successfully loaded in another tab.",
+                           path="Back")
 
 
 @app.route("/gen", methods=["GET", "POST"])
