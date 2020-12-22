@@ -50,8 +50,12 @@ def index():
         h -= 12
         amp = 'PM'
 
-    return render_template("index.html", username=user_data[0]['username'], day=days[current_day], hour=h,
-                           minute=mi, amp=amp)
+    return render_template("index.html",
+                           username=user_data[0]['username'],
+                           day=days[current_day],
+                           hour=h,
+                           minute=mi,
+                           amp=amp)
 
 
 @app.route("/delete", methods=["POST"])
@@ -61,7 +65,8 @@ def delete():
         db.execute("DELETE FROM 'todo' WHERE (id = :user_id)", user_id=session["user_id"])
         db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
                    user_id=session["user_id"],
-                   typee="Deleted History", message="")
+                   typee="Deleted History",
+                   message="")
 
         return redirect("/")
 
@@ -74,7 +79,9 @@ def delete():
                            user_id=session["user_id"],
                            user_message=todo_data[m]['todo'])
                 db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
-                           user_id=session["user_id"], typee="Deleted To-Do Item", message=todo_data[m]['todo'])
+                           user_id=session["user_id"],
+                           typee="Deleted To-Do Item",
+                           message=todo_data[m]['todo'])
 
                 return redirect("/todo")
 
@@ -86,9 +93,12 @@ def delete():
         for m in range(len(user_data)):
             if user_data[m]['service'].lower() == request.form.get("list_item").lower():
                 db.execute("DELETE FROM 'manager' WHERE (id = :user_id AND service = :site)",
-                           user_id=session["user_id"], site=user_data[m]['service'])
+                           user_id=session["user_id"],
+                           site=user_data[m]['service'])
                 db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
-                           user_id=session["user_id"], typee="Deleted Password", message="")
+                           user_id=session["user_id"],
+                           typee="Deleted Password",
+                           message="")
 
                 return redirect("/manager")
 
@@ -107,7 +117,9 @@ def history():
 
     if not history:
         return render_template("history.html")
-    return render_template("history.html", rows=history, exists=True)
+    return render_template("history.html",
+                           rows=history,
+                           exists=True)
 
 
 @app.route("/todo", methods=["GET", "POST"])
@@ -121,17 +133,24 @@ def todo():
             return apology("Must enter something to do in the input field")
 
         db.execute("INSERT INTO 'todo' (id, todo) VALUES (:user_id, :message)",
-                   user_id=session["user_id"], message=request.form.get("message"))
+                   user_id=session["user_id"],
+                   message=request.form.get("message"))
         db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
                    user_id=session["user_id"],
-                   typee="Added Item On ToDo List", message=request.form.get("message"))
+                   typee="Added Item On ToDo List",
+                   message=request.form.get("message"))
 
         return redirect("/todo")
 
     else:
         if not todo_data:
-            return render_template("todo.html", username=user_data[0]['username'], rows=todo_data)
-        return render_template("todo.html", username=user_data[0]['username'], rows=todo_data, exists=True)
+            return render_template("todo.html",
+                                   username=user_data[0]['username'],
+                                   rows=todo_data)
+        return render_template("todo.html",
+                               username=user_data[0]['username'],
+                               rows=todo_data,
+                               exists=True)
 
 
 @app.route("/stock", methods=["GET", "POST"])
@@ -190,8 +209,8 @@ def stock():
         for m in range(len(cols)):
             all_time[cols[m]] /= len(data)
 
-            prev_percent[cols[m]] = percent(data[cols[m]][len(data) - 2], data[cols[m]][len(data) - 1])
-            prev[cols[m]] = data[cols[m]][len(data) - 1] - data[cols[m]][len(data) - 2]
+            prev_percent[cols[m]] = percent(data[cols[m]][len(data) - 2], (data[cols[m]][len(data) - 1] + data[cols[m]][len(data) - 2]) / 2)
+            prev[cols[m]] = (data[cols[m]][len(data) - 1] + data[cols[m]][len(data) - 2]) / 2
 
             for n in range(len(data) - 4, len(data)):
                 if n == len(data) - 4:
@@ -287,9 +306,13 @@ def generator():
 
         new_pass = "".join(password)
         db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
-                   user_id=session["user_id"], typee="Generated Password", message="")
+                   user_id=session["user_id"],
+                   typee="Generated Password",
+                   message="")
 
-        return render_template("pass.html", type_success="generated password", path="Exit",
+        return render_template("pass.html",
+                               type_success="generated password",
+                               path="Exit",
                                password=new_pass)
 
     else:
