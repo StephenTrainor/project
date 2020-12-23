@@ -1,11 +1,43 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Summary
+    {{ ticker_symbol }} Summary
 {% endblock %}
 
 {% block main %}
     <h1>Summary for {{ ticker_symbol }}</h1>
+
+    <br>
+
+    <div class="card-group">
+        <div id="current_prices" class="card text-white bg-info mb-3">
+            <div class="card-header">
+            Most recent prices for {{ ticker_symbol }} as of {{ current[0] }}
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                        {% for key, value in prev.items() %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for value in current %}
+                                {% if loop.index != 1 %}
+                                    {% if loop.index == 6 %}
+                                        <td class="card-text">{{ value | cm }} shares</td>
+                                    {% else %}
+                                        <td class="card-text">${{ value | cm }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <form class="form-group" action="/candle" method="post">
         <div>
@@ -13,8 +45,14 @@
         </div>
     </form>
 
+    <br>
+
+    <h3>More Information</h3>
+
+    <br>
+
     <div class="card-group">
-        <div id="prev_prices" class="card text-white bg-info mb-3" style="max-width: 60rem;">
+        <div id="prev_prices" class="card text-white bg-success mb-3">
             <div class="card-header">
                 Percent change averages for most recent trading day and previous day
             </div>
@@ -22,27 +60,27 @@
                 <table>
                     <thead>
                         {% for key, value in prev.items() %}
-                        <th>{{ key }}</th>
+                            <th>{{ key }}</th>
                         {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
                             {% for key, value in prev.items() %}
-                            {% if key == 'Volume' %}
-                                <td class="card-text">{{ value|round|int }} shares</td>
-                            {% else %}
-                                <td class="card-text">{{ "$%.2f"|format(value|float) }}</td>
-                            {% endif %}
+                                {% if key == 'Volume' %}
+                                    <td class="card-text">{{ value | cm }} shares</td>
+                                {% else %}
+                                    <td class="card-text">${{ value | cm }}</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
 
                         <tr>
                             {% for key, value in prev_percent.items() %}
-                            {% if key == 'Close' %}
-                                <td id="prev_percent_close" class="card-text">{{ value }}%</td>
-                            {% else %}
-                                <td class="card-text">{{ value }}%</td>
-                            {% endif %}
+                                {% if key == 'Close' %}
+                                    <td id="prev_percent_close" class="card-text">{{ value }}%</td>
+                                {% else %}
+                                    <td class="card-text">{{ value }}%</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -52,7 +90,7 @@
     </div>
 
     <div class="card-group">
-        <div id="week_prices" class="card text-white bg-info mb-3" style="max-width: 60rem;">
+        <div id="week_prices" class="card text-white bg-success mb-3">
             <div class="card-header">
                 Percent change averages for most recent trading day and monthly average
             </div>
@@ -66,21 +104,21 @@
                     <tbody>
                         <tr>
                             {% for key, value in weekly.items() %}
-                            {% if key == 'Volume' %}
-                                <td class="card-text">{{ value|round|int }} shares</td>
-                            {% else %}
-                                <td class="card-text">{{ "$%.2f"|format(value|float) }}</td>
-                            {% endif %}
+                                {% if key == 'Volume' %}
+                                    <td class="card-text">{{ value | cm }} shares</td>
+                                {% else %}
+                                    <td class="card-text">${{ value | cm }}</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
 
                         <tr>
                             {% for key, value in week_percent.items() %}
-                            {% if key == 'Close' %}
-                                <td id="week_percent_close" class="card-text">{{ value }}%</td>
-                            {% else %}
-                                <td class="card-text">{{ value }}%</td>
-                            {% endif %}
+                                {% if key == 'Close' %}
+                                    <td id="week_percent_close" class="card-text">{{ value }}%</td>
+                                {% else %}
+                                    <td class="card-text">{{ value }}%</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -90,7 +128,7 @@
     </div>
 
     <div class="card-group">
-        <div id="month_prices" class="card text-white bg-info mb-3" style="max-width: 60rem;">
+        <div id="month_prices" class="card text-white bg-success mb-3">
             <div class="card-header">
                 Percent change averages for most recent trading day and monthly average
             </div>
@@ -104,21 +142,21 @@
                     <tbody>
                         <tr>
                             {% for key, value in monthly.items() %}
-                            {% if key == 'Volume' %}
-                                <td class="card-text">{{ value|round|int }} shares</td>
-                            {% else %}
-                                <td class="card-text">{{ "$%.2f"|format(value|float) }}</td>
-                            {% endif %}
+                                {% if key == 'Volume' %}
+                                    <td class="card-text">{{ value | cm }} shares</td>
+                                {% else %}
+                                    <td class="card-text">${{ value | cm }}</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
 
                         <tr>
                             {% for key, value in month_percent.items() %}
-                            {% if key == 'Close' %}
-                                <td id="month_percent_close" class="card-text">{{ value }}%</td>
-                            {% else %}
-                                <td class="card-text">{{ value }}%</td>
-                            {% endif %}
+                                {% if key == 'Close' %}
+                                    <td id="month_percent_close" class="card-text">{{ value }}%</td>
+                                {% else %}
+                                    <td class="card-text">{{ value }}%</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -127,9 +165,53 @@
         </div>
     </div>
 
+    <div class="card-group">
+        <div id="all_prices" class="card text-white bg-success mb-3">
+            <div class="card-header">
+                Percent change averages for most recent trading day and all time average (of specified months)
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                        {% for key, value in all_time.items() %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for key, value in all_time.items() %}
+                                {% if key == 'Volume' %}
+                                    <td class="card-text">{{ value | cm }} shares</td>
+                                {% else %}
+                                    <td class="card-text">${{ value | cm }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            {% for key, value in all_time_percent.items() %}
+                                {% if key == 'Close' %}
+                                    <td id="all_percent_close" class="card-text">{{ value }}%</td>
+                                {% else %}
+                                    <td class="card-text">{{ value }}%</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
     <form class="form-group" action="/stock" method="get">
         <div>
             <button class="btn btn-outline-info" type="submit">Go Back</button>
         </div>
     </form>
+
+    <footer class="medium text-center text-muted">
+        The green and red indicators of increase and decrease are based off of the closing price.
+    </footer>
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Umbrella
+{% endblock %}
+
+{% block main %}
+    <form action="/umbrella" method="post">
+        <h1>Need an Umbrella?</h1>
+
+        <pre style="text-align: left; margin-left: 160px;">
+                        Here you can:
+                        1. Enter a location as specific as you wish
+                        2. Receive feedback about whether to bring an umbrella or not
+                        3. Not worry about any location or history being logged
+                        4. Receive other information about the whether in an area
+        </pre>
+
+        <div class="form-group">
+            <input size="30%" class="input-large search-query" type="text" name="city" placeholder="City (Required)" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input size="30%" class="input-large search-query" type="text" name="state" placeholder="State (Optional) abbreviation" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input size="30%" class="input-large search-query" type="text" name="country" placeholder="Country (Optional) abbreviation" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input size="30%" class="input-large search-query" type="text" name="units" placeholder="Units (Optional)" autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-outline-info">Check Location</button>
+    </form>
+{% endblock %}

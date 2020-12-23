@@ -1,4 +1,6 @@
+import json
 import random
+import requests
 import pandas as pd
 from cs50 import SQL
 from tempfile import mkdtemp
@@ -7,16 +9,22 @@ from datetime import datetime
 from flask_session import Session
 import plotly.graph_objects as go
 import pandas_datareader.data as web
-from helpers import apology, login_required, percent
+from helpers import apology, login_required, percent, cm
 from flask import Flask, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 
+
 # Configure application
 app = Flask(__name__)
 
+
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+# Init custom filter
+app.jinja_env.filters["cm"] = cm
 
 
 # Ensure responses aren't cached
@@ -153,6 +161,47 @@ def todo():
                                exists=True)
 
 
+@app.route("/umbrella", methods=["GET", "POST"])
+@login_required
+def umbrella():
+    if request.method == "POST":
+        params = [f'https://weather.talkpython.fm/api/weather/?city={request.form.get("city")}']
+        if not request.form.get("city"):
+            return apology("Must specify a city", 403)
+
+        elif request.form.get("state"):
+            params.append(f'&state={request.form.get("state")}')
+
+        elif request.form.get("country"):
+            params.append(f'&country={request.form.get("country")}')
+
+        elif request.form.get("units"):
+            params.append(f'&units={request.form.get("units")}')
+
+        try:
+            url = "".join(params)
+            response = requests.get(url)
+
+            if not response:
+                raise ValueError
+
+            response.raise_for_status()
+            quote = response.json()
+
+            print(quote)
+            # with open("weather.json", "w") as f:
+            #     json.dump(quote, f)
+
+            return apology("success", 200)
+
+
+        except ValueError:
+            return apology("Invalid location, try again")
+
+    else:
+        return render_template("umbrella.html")
+
+
 @app.route("/stock", methods=["GET", "POST"])
 @login_required
 def stock():
@@ -188,6 +237,7 @@ def stock():
             return apology("Invalid Ticker Symbol, try again", 403)
 
         cols = ['High', 'Low', 'Open', 'Close', 'Volume', 'Adj Close']
+        all_time_percent = {}
         month_percent = {}
         week_percent = {}
         prev_percent = {}
@@ -195,8 +245,7 @@ def stock():
         monthly = {}
         weekly = {}
         prev = {}
-        current = data.tail(1)
-        date_data = current['Date']
+        current = [data[key][len(data) - 1] for key, value in data.items()]
 
         for i in range(len(data)):
             for j in range(len(cols)):
@@ -209,7 +258,9 @@ def stock():
         for m in range(len(cols)):
             all_time[cols[m]] /= len(data)
 
-            prev_percent[cols[m]] = percent(data[cols[m]][len(data) - 2], (data[cols[m]][len(data) - 1] + data[cols[m]][len(data) - 2]) / 2)
+            all_time_percent[cols[m]] = percent(all_time[cols[m]], data[cols[m]][len(data) - 1])
+            prev_percent[cols[m]] = percent(data[cols[m]][len(data) - 2],
+                                            (data[cols[m]][len(data) - 1] + data[cols[m]][len(data) - 2]) / 2)
             prev[cols[m]] = (data[cols[m]][len(data) - 1] + data[cols[m]][len(data) - 2]) / 2
 
             for n in range(len(data) - 4, len(data)):
@@ -232,15 +283,22 @@ def stock():
             week_percent[cols[m]] = percent(weekly[cols[m]], data[cols[m]][len(data) - 1])
             month_percent[cols[m]] = percent(monthly[cols[m]], data[cols[m]][len(data) - 1])
 
+        db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
+                   user_id=session["user_id"],
+                   typee="Looked up a stock",
+                   message=symbol)
+
         return render_template("summary.html",
-                               ticker_symbol=symbol,
+                               all_time_percent=all_time_percent,
                                month_percent=month_percent,
                                week_percent=week_percent,
                                prev_percent=prev_percent,
+                               ticker_symbol=symbol,
+                               all_time=all_time,
+                               current=current,
                                monthly=monthly,
                                weekly=weekly,
-                               prev=prev,
-                               all_time=all_time)
+                               prev=prev)
 
     else:
         return render_template("stock.html")
@@ -343,18 +401,26 @@ def manager():
 
         db.execute("INSERT INTO 'history' (id, type, message) VALUES (:user_id, :typee, :message)",
                    user_id=session["user_id"],
-                   typee="Additional Item for Password Manager", message="")
+                   typee="Additional Item for Password Manager",
+                   message="")
         db.execute(
             "INSERT INTO 'manager' (id, service, username, password) VALUES (:user_id, :site, :username, :password)",
-            user_id=session["user_id"], site=request.form.get("service"), username=request.form.get("username"),
+            user_id=session["user_id"],
+            site=request.form.get("service"),
+            username=request.form.get("username"),
             password=request.form.get("password"))
 
         return redirect("/manager")
 
     else:
         if not content:
-            return render_template("manager.html", username=user_data[0]['username'], rows=content)
-        return render_template("manager.html", username=user_data[0]['username'], rows=content, exists=True)
+            return render_template("manager.html",
+                                   username=user_data[0]['username'],
+                                   rows=content)
+        return render_template("manager.html",
+                               username=user_data[0]['username'],
+                               rows=content,
+                               exists=True)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -369,8 +435,7 @@ def login():
         elif not request.form.get("password"):
             return apology("must provide password", 403)
 
-        rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
+        rows = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))
 
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
             return apology("invalid username and/or password", 403)
@@ -436,7 +501,8 @@ def register():
             return apology("Password Must Have At Least 8 letters, 2 numbers and 1 symbol for extra security.", 403)
 
         db.execute("INSERT INTO users (username, hash) VALUES (:user, :hash_value)",
-                   user=request.form.get("username"), hash_value=generate_password_hash(user_password))
+                   user=request.form.get("username"),
+                   hash_value=generate_password_hash(user_password))
 
         return redirect("/login")
 

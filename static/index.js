@@ -11,9 +11,6 @@ function bad_password() {
         document.getElementById("strength").classList.remove('alert-warning');
         document.getElementById("strength").classList.add('alert-danger');
     }
-    else if (document.getElementById("strength").classList.contains('alert-danger')) {
-
-    }
 }
 
 function medium_password() {
@@ -24,9 +21,6 @@ function medium_password() {
     if (document.getElementById("strength").classList.contains('alert-success')) {
         document.getElementById("strength").classList.remove('alert-success');
         document.getElementById("strength").classList.add('alert-warning');
-    }
-    else if (document.getElementById("strength").classList.contains('alert-warning')) {
-
     }
     else if (document.getElementById("strength").classList.contains('alert-danger')) {
         document.getElementById("strength").classList.remove('alert-danger');
@@ -39,10 +33,7 @@ function good_password() {
     document.getElementById("details").innerHTML = "The entered password seems secure, good job!";
     document.getElementById("suggestion").innerHTML = "Your password seems secure enough, but make sure to enable some form of 2FA and don't forget your password!";
 
-    if (document.getElementById("strength").classList.contains('alert-success')) {
-
-    }
-    else if (document.getElementById("strength").classList.contains('alert-warning')) {
+    if (document.getElementById("strength").classList.contains('alert-warning')) {
         document.getElementById("strength").classList.remove('alert-warning');
         document.getElementById("strength").classList.add('alert-success');
     }
@@ -91,3 +82,21 @@ function base() {
 }
 
 base();
+
+function change_colors() {
+    let ids = ['prev_percent_close', 'week_percent_close', 'month_percent_close', 'all_percent_close'];
+    let counter = ['prev_prices', 'week_prices', 'month_prices', 'all_prices'];
+    for (var i = 0; i < ids.length; i++) {
+        console.log(i)
+        console.log(ids[i])
+        var prev = document.getElementById(ids[i]).innerHTML;
+        if (prev.includes('-')) {
+            document.getElementById(counter[i]).classList.remove('bg-success');
+            document.getElementById(counter[i]).classList.add('bg-danger');
+        }
+    }
+}
+
+window.onload = function() {
+    change_colors();
+}
