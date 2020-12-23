@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Umbrella?
+{% endblock %}
+
+{% block main %}
+    {% if need_umbrella %}
+        <h3>Yes</h3>
+    {% else %}
+        <h3>No</h3>
+    {% endif %}
+    <br>
+    <div class="card text-black mb-3" style="max-width: 18rem;">
+        <div class="card-header">
+            Forecast for {{ city }}
+        </div>
+        <div class="card-body">
+            Temperature: {{ temp }} degrees Celsius
+            <br>
+            Description: {{ weather['description'] }}
+            <br>
+            Category: {{ weather['category'] }}
+            <br>
+        </div>
+    </div>
+
+    <footer class="medium text-center text-muted">
+        Units: {{ units }}
+    </footer>
+{% endblock %}
