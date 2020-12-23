@@ -165,6 +165,13 @@ def todo():
 @login_required
 def umbrella():
     if request.method == "POST":
+        keys = {
+            'weather': ['description', 'category'],
+            'wind': ['speed', 'deg'],
+            'units': 0,
+            'forecast': ['temp', 'feels_like', 'pressure', 'humidity', 'low', 'high']
+        }
+
         params = [f'https://weather.talkpython.fm/api/weather/?city={request.form.get("city")}']
         if not request.form.get("city"):
             return apology("Must specify a city", 403)
@@ -188,12 +195,31 @@ def umbrella():
             response.raise_for_status()
             quote = response.json()
 
-            print(quote)
-            # with open("weather.json", "w") as f:
-            #     json.dump(quote, f)
+            rain_status = quote['weather']['category'].lower() in ['rain', 'mist']
 
-            return apology("success", 200)
+            forecast = {}
+            weather = {}
+            units = {}
+            wind = {}
 
+            for key in keys['weather']:
+                weather[key] = quote['weather'][key]
+
+            for key in keys['wind']:
+                wind[key] = quote['wind'][key]
+
+            units['units'] = quote['units']
+
+            for key in keys['forecast']:
+                forecast[key] = quote['forecast'][key]
+
+            return render_template("weather.html",
+                                   temp=quote['forecast']['temp'],
+                                   city=request.form.get("city"),
+                                   need_umbrella=rain_status,
+                                   forecast=forecast,
+                                   weather=weather,
+                                   units=units['units'])
 
         except ValueError:
             return apology("Invalid location, try again")
