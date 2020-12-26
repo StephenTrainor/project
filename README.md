@@ -1,8 +1,7 @@
 # Final Project
 ### What is the project?
-A website that has convenient features for the user such as a stock lookup section or a password generator.
-Navigate through the website with the navbar or the links on the index page. Some history is logged, 
-but can be cleared at any time. Enjoy the site, source code is included and can be viewed if you so wish.
+I am a person who loves convience, being lazy, and saving time. So I thought that I was a good idea to create a website that has convenient features for the user such as a stock lookup section or a password generator. 
+Navigate through the website with the navbar or the links on the index page. Some history is logged, but can be cleared at any time. Enjoy the site, source code is included and can be viewed if you so wish.
 
 ### How to use
 Setup for unix
